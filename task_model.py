@@ -1,3 +1,4 @@
+import sys
 from activations import Activation_ReLU
 from dense_layer import Layer_Dense
 from losses import HuberLoss
@@ -95,6 +96,11 @@ class TaskDurationModel:
 
     def predict(self, task_dict, scaler_path="processed/scaler.json"):
         import json
+        import sys
+
+        if hasattr(sys, "_MEIPASS"):
+            scaler_path = os.path.join(sys._MEIPASS, scaler_path)
+
         X_input = encode_task(task_dict)
 
         # === Load training-time scaler
@@ -121,6 +127,9 @@ class TaskDurationModel:
         print(f"Model saved to {path}")
 
     def load(self, path="models/model_weights.npz"):
+        if hasattr(sys, "_MEIPASS"):
+            path = os.path.join(sys._MEIPASS, path)
+
         data = np.load(path)
         self.layer1.weights = data['w1']
         self.layer1.biases = data['b1']
