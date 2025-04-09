@@ -76,11 +76,41 @@ class TaskDurationModel:
 
         avg_loss = total_loss / epochs
         return avg_loss, epoch_logs
-    def predict(self, task_dict):
+    def train_on_vector(self, X_input, true_duration, epochs=1, learning_rate=0.0001):
+        y_true = np.array([[true_duration]])
+        for epoch in range(epochs):
+            y_pred = self.forward(X_input)
+            loss = self.loss_function.forward(y_pred, y_true)
+            self.loss_function.backward(y_pred, y_true)
+            self.backward(y_pred, y_true)
+
+            for layer in [self.layer1, self.layer2, self.layer3, self.layer4]:
+                np.clip(layer.dweights, -1, 1, out=layer.dweights)
+                np.clip(layer.dbiases, -1, 1, out=layer.dbiases)
+                layer.weights -= learning_rate * layer.dweights
+                layer.biases -= learning_rate * layer.dbiases
+
+        return loss
+
+
+    def predict(self, task_dict, scaler_path="processed/scaler.json"):
+        import json
         X_input = encode_task(task_dict)
-        y_pred = self.forward(X_input)
-        print("🔧 Raw model output:", y_pred)
+
+        # === Load training-time scaler
+        with open(scaler_path, "r") as f:
+            scaler = json.load(f)
+        min_vals = np.array(scaler["min"])
+        max_vals = np.array(scaler["max"])
+        denom = max_vals - min_vals
+        denom[denom == 0] = 1e-6
+
+        X_scaled = (X_input - min_vals) / denom
+
+        y_pred = self.forward(X_scaled)
+        print("Raw model output:", y_pred)
         return y_pred[0][0]
+
     def save(self, path="models/model_weights.npz"):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         np.savez(path,

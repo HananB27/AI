@@ -1,51 +1,61 @@
-import matplotlib.pyplot as plt
-import numpy as np
-
-from task_input import encode_task
 from task_model import TaskDurationModel
+from task_input import encode_task
+import numpy as np
+import pandas as pd
 
-# === 2. Define base task ===
-base_task = {
+# === Load trained model ===
+model = TaskDurationModel()
+model.load("models/model_weights.npz")
+
+# === Load test dataset ===
+test_df = pd.read_csv("realistic_tasks_large.csv").sample(1000)
+
+# === Predict and Evaluate ===
+predictions = []
+actuals = []
+
+for _, row in test_df.iterrows():
+    task_data = row.to_dict()
+    actual_duration = task_data.pop("predicted_duration_days")
+    pred_duration = model.predict(task_data)
+
+    predictions.append(pred_duration)
+    actuals.append(actual_duration)
+
+predictions = np.array(predictions)
+actuals = np.array(actuals)
+
+# === Calculate precision (Mean Absolute Percentage Error) ===
+mape = np.mean(np.abs((actuals - predictions) / actuals))
+precision_percentage = (1 - mape) * 100
+
+print(f"Model Precision: {round(precision_percentage, 2)}%")
+
+# === Example task prediction ===
+test_task = {
     "task_type": "Feature Dev",
     "complexity": "High",
-    "assignee_level": "Tech Lead",
+    "assignee_level": "Mid",
     "tech_stack": "Python",
     "task_priority": "Critical",
     "story_points": 8,
-    "team_size": 1,  # will be changed
+    "team_size": 4,
     "num_dependencies": 2,
-    "estimated_hours": 20,
-    "sprint_day": 10,
-    "created_hour": 14,
+    "estimated_hours": 24,
+    "sprint_day": 4,
+    "created_hour": 13,
     "remote_work": True,
     "meetings_today": 1,
-    "blocker_flag": False
+    "blocker_flag": False,
+    "avg_experience": 3.5,
+    "juniors": 2,
+    "mediors": 2,
+    "seniors": 0,
+    "tech_leads": 0
 }
 
-# === 3. Test different team sizes and store results ===
-team_sizes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-predictions = []
-model = TaskDurationModel()
-model.load("models/model_weights.npz")
-for size in team_sizes:
-    task = base_task.copy()
-    task["team_size"] = size
+prediction = model.predict(test_task)
+days = int(prediction)
+hours = round((prediction - days) * 24)
+print(f"Predicted Duration for example task: {days} days and {hours} hours")
 
-    X_input = encode_task(task)
-    X_input = X_input / np.max(np.abs(X_input))
-
-    prediction = model.predict(task)
-    predictions.append(round(prediction, 2))
-
-    print(f"👥 Team Size {size} → ⏱ {round(prediction, 2)} days")
-
-# === 4. Plotting ===
-plt.figure(figsize=(10, 6))
-plt.plot(team_sizes, predictions, marker='o')
-plt.title("Predicted Task Duration vs. Team Size")
-plt.xlabel("Team Size")
-plt.ylabel("Predicted Duration (days)")
-plt.grid(True)
-plt.xticks(team_sizes)
-plt.tight_layout()
-plt.show()

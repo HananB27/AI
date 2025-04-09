@@ -1,46 +1,58 @@
-import pandas as pd
-from task_model import TaskDurationModel
-from task_input import encode_task
 import numpy as np
+from task_model import TaskDurationModel
 import matplotlib.pyplot as plt
+import os
 
-loss_history = []  
+# === Load preprocessed data ===
+X = np.load("processed/X_scaled.npy")
+y = np.load("processed/y.npy")
 
-df = pd.read_csv("detailed_project_management_dataset.csv")
+# === Initialize model ===
+model = TaskDurationModel(input_size=X.shape[1])
+print(f"Training on {X.shape[0]} samples, input dim = {X.shape[1]}")
 
-model = TaskDurationModel(input_size=45)
+# === Training parameters ===
+batch_size = 128
+epochs = 300
+learning_rate = 0.0001
+loss_history = []
 
-log_file = open("full_training_log.txt", "w",encoding="utf-8") 
+# === Training loop ===
+for epoch in range(epochs):
+    total_loss = 0
 
-print("Training model on dataset...")
-log_file.write("Training model on dataset...\n")
+    # Shuffle data each epoch
+    indices = np.random.permutation(len(X))
+    X_shuffled = X[indices]
+    y_shuffled = y[indices]
 
-for i, row in df.iterrows():
-    task = row.drop("predicted_duration_days").to_dict()
-    duration = row["predicted_duration_days"]
+    # Train in batches
+    for i in range(0, len(X), batch_size):
+        xb = X_shuffled[i:i+batch_size]
+        yb = y_shuffled[i:i+batch_size]
 
+        for xi, yi in zip(xb, yb):
+            loss = model.train_on_vector(X_input=xi.reshape(1, -1), true_duration=yi, learning_rate=learning_rate)
+            total_loss += loss
 
-    avg_loss, epoch_logs = model.train(task_dict=task, true_duration=duration, epochs=5, learning_rate=0.01)
-
+    avg_loss = total_loss / len(X)
     loss_history.append(avg_loss)
 
-    log_file.write(f"\n--- Task {i} ---\n")
-    log_file.write(f"Input: {task}\n")
-    log_file.write(f"Target Duration: {duration}\n")
-    log_file.write(f"Average Loss: {avg_loss:.4f}\n")
-    log_file.write("Epoch Logs:\n")
-    for log in epoch_logs:
-        log_file.write(f"{log}\n")
+    if epoch % 25 == 0 or epoch == epochs - 1:
+        print(f"Epoch {epoch}: Avg Loss = {avg_loss:.4f}")
 
-    
-    if avg_loss > 3000:
-        log_file.write(f"⚠️ High loss at task {i}: Loss={avg_loss:.2f}\n")
-        print(f"⚠️ High loss at task {i}: Loss={avg_loss:.2f}")
-
-    if i % 100 == 0:
-        print(f"Trained on {i} tasks")
-
+# === Save trained model ===
+os.makedirs("models", exist_ok=True)
 model.save("models/model_weights.npz")
-print("Model training complete.")
-log_file.write("\nModel training complete.\n")
-log_file.close()
+print("Model training complete and saved to models/model_weights.npz")
+
+# === Plot loss curve ===
+plt.figure(figsize=(10, 5))
+plt.plot(loss_history, label="Avg Loss")
+plt.title("Training Loss Over Epochs")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
