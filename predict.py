@@ -48,8 +48,8 @@ test_task = {
     "meetings_today": 1,
     "blocker_flag": False,
     "avg_experience": 3.5,
-    "juniors": 2,
-    "mediors": 2,
+    "juniors": 4,
+    "mediors": 0,
     "seniors": 0,
     "tech_leads": 0
 }

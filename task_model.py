@@ -108,7 +108,6 @@ class TaskDurationModel:
         X_scaled = (X_input - min_vals) / denom
 
         y_pred = self.forward(X_scaled)
-        print("Raw model output:", y_pred)
         return y_pred[0][0]
 
     def save(self, path="models/model_weights.npz"):

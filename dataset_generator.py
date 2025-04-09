@@ -24,31 +24,44 @@ def random_task():
     deps = random.randint(0, 3)
     remote = random.choices([True, False], weights=[0.4, 0.6])[0]
 
-    team_size = random.randint(1, 5)
+    team_size = random.randint(2, 5)
     team_roles = random.choices(ASSIGNEE_LEVELS, weights=[4, 3, 2, 1], k=team_size)
     counts = {role: team_roles.count(role) for role in ASSIGNEE_LEVELS}
 
+    # === Hierarchy rules ===
+    if counts["Tech Lead"] > 1:
+        return None
+    if counts["Tech Lead"] > 0 and team_size < 3:
+        return None
+    if counts["Senior"] > 2:
+        return None
+    if counts["Junior"] > 2 and complexity == "High":
+        return None
+    if counts["Senior"] > 0 and complexity == "Low":
+        return None
+
     exp_map = {
-        "Junior": random.uniform(1, 2),
-        "Mid": random.uniform(2.5, 4),
-        "Senior": random.uniform(4.5, 6.5),
-        "Tech Lead": random.uniform(6.5, 8)
+        "Junior": 1.5,
+        "Mid": 3.25,
+        "Senior": 5.75,
+        "Tech Lead": 7.75
     }
     avg_exp = round(np.mean([exp_map[role] for role in team_roles]), 2)
 
-    base_duration = story_points * 0.4
+    # Base duration and modifiers
+    story_point_factor = 0.4
+    base = story_points * story_point_factor
+    complexity_multiplier = {"Low": 0.9, "Medium": 1.0, "High": 1.15}[complexity]
+    priority_factor = {"Low": 1.1, "Medium": 1.0, "High": 0.9, "Critical": 0.85}[task_priority]
 
-    complexity_multiplier = {"Low": 0.9, "Medium": 1.0, "High": 1.15}
-    priority_factor = {"Low": 1.1, "Medium": 1.0, "High": 0.9, "Critical": 0.85}
-
-    duration = base_duration * complexity_multiplier[complexity]
+    duration = base * complexity_multiplier
     duration += deps * 0.15
     duration += meetings * 0.1
 
     team_factor = 1 - (0.03 * counts.get("Senior", 0) + 0.05 * counts.get("Tech Lead", 0))
     duration *= team_factor
 
-    exp_factor = np.clip(1.05 - avg_exp * 0.03, 0.9, 1.05)
+    exp_factor = np.clip(1.1 - avg_exp * 0.05, 0.85, 1.1)
     duration *= exp_factor
 
     if blockers:
@@ -56,7 +69,8 @@ def random_task():
     if remote:
         duration *= 1.05
 
-    duration += random.uniform(-0.2, 0.2)
+    duration *= priority_factor
+    duration += random.uniform(-0.1, 0.1)
     duration = round(np.clip(duration, 0.5, 8.0), 2)
 
     return {
@@ -82,10 +96,14 @@ def random_task():
         "predicted_duration_days": duration
     }
 
-random.seed(42)
-data = [random_task() for _ in range(50000)]
+# Generate data with hierarchy-respecting logic
+data = []
+while len(data) < 50000:
+    task = random_task()
+    if task:
+        data.append(task)
 
+# Save dataset
 df = pd.DataFrame(data)
 df.to_csv("realistic_tasks_large.csv", index=False)
-print("Dataset saved as realistic_tasks_large.csv")
-print(f"Example task duration: {data[0]['predicted_duration_days']} days")
+print("Saved realistic_tasks_large.csv with", len(data), "rows")
