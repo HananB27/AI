@@ -899,6 +899,184 @@ function App() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.6 }}
+                        className="bg-white rounded-xl shadow-md p-4 mt-6 space-y-6"
+                    >
+                        <h2 className="text-base font-semibold flex items-center text-indigo-700">
+                            <Users className="h-5 w-5 mr-2" />
+                            Optimized Team Recommendations
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* High Performance Teams Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-sm font-semibold text-gray-700 flex items-center">
+                                        <Zap className="h-4 w-4 mr-1 text-indigo-500" />
+                                        High Performance Teams
+                                    </h3>
+                                    <span className="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full">
+                                        Speed Optimized
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3">
+                                    {optimizedTeams.highPerformance.map(
+                                        (team, index) => (
+                                            <div
+                                                key={`performance-${index}`}
+                                                className={`border rounded-lg p-4 transition-all hover:shadow-md ${
+                                                    index === 0
+                                                        ? "border-green-300 bg-green-50"
+                                                        : "border-gray-200"
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex-1">
+                                                        <div className="font-medium text-gray-800">
+                                                            {team.composition}
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-2 mt-2">
+                                                            <div className="flex items-center">
+                                                                <Activity className="h-4 w-4 text-indigo-600 mr-1" />
+                                                                <span className="text-sm text-gray-600">
+                                                                    Performance:{" "}
+                                                                    <span className="font-medium">
+                                                                        {
+                                                                            team.performance
+                                                                        }
+                                                                        %
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center">
+                                                                <DollarSign className="h-4 w-4 text-green-600 mr-1" />
+                                                                <span className="text-sm text-gray-600">
+                                                                    Cost:{" "}
+                                                                    <span className="font-medium">
+                                                                        $
+                                                                        {
+                                                                            team.cost
+                                                                        }
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {index === 0 && (
+                                                        <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                                            Recommended
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Budget Friendly Teams Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-sm font-semibold text-gray-700 flex items-center">
+                                        <DollarSign className="h-4 w-4 mr-1 text-green-500" />
+                                        Budget-Friendly Teams
+                                    </h3>
+                                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
+                                        Cost Optimized
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3">
+                                    {optimizedTeams.budgetFriendly.map(
+                                        (team, index) => (
+                                            <div
+                                                key={`budget-${index}`}
+                                                className={`border rounded-lg p-4 transition-all hover:shadow-md ${
+                                                    index === 0
+                                                        ? "border-green-300 bg-green-50"
+                                                        : "border-gray-200"
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex-1">
+                                                        <div className="font-medium text-gray-800">
+                                                            {team.composition}
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-2 mt-2">
+                                                            <div className="flex items-center">
+                                                                <Activity className="h-4 w-4 text-indigo-600 mr-1" />
+                                                                <span className="text-sm text-gray-600">
+                                                                    Performance:{" "}
+                                                                    <span className="font-medium">
+                                                                        {
+                                                                            team.performance
+                                                                        }
+                                                                        %
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center">
+                                                                <DollarSign className="h-4 w-4 text-green-600 mr-1" />
+                                                                <span className="text-sm text-gray-600">
+                                                                    Cost:{" "}
+                                                                    <span className="font-medium">
+                                                                        $
+                                                                        {
+                                                                            team.cost
+                                                                        }
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {index === 0 && (
+                                                        <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                                            Recommended
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Helper guide */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-2">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0">
+                                    <Brain className="h-5 w-5 text-blue-600" />
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-blue-800">
+                                        Understanding Team Composition
+                                    </h3>
+                                    <div className="mt-1 text-sm text-blue-700">
+                                        <p>
+                                            The format{" "}
+                                            <strong>2J, 1M, 3S, 1TL</strong>{" "}
+                                            means 2 Juniors, 1 Mid-level, 3
+                                            Seniors, and 1 Tech Lead.
+                                        </p>
+                                        <p className="mt-1">
+                                            <strong>Recommended teams</strong>{" "}
+                                            are highlighted in green and
+                                            represent the optimal choice in each
+                                            category.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+                {(optimizedTeams.highPerformance.length > 0 ||
+                    optimizedTeams.budgetFriendly.length > 0) && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.6 }}
                         className="bg-white rounded-xl shadow-md p-4 mt-6 space-y-8"
                     >
                         <h2 className="text-base font-semibold flex items-center text-indigo-700">
