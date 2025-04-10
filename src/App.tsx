@@ -727,7 +727,9 @@ function App() {
                                         </div>
                                         <div className="text-base font-semibold">
                                             {prediction.duration.days}d{" "}
-                                            {prediction.duration.hours}h
+                                            {prediction.duration.hours>0 &&(
+                                             <p>{prediction.duration.hours}h</p>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="bg-green-50 rounded-lg p-4">

@@ -26,6 +26,9 @@ def predict():
         prediction = model.predict(data)
         days = int(prediction)
         hours = round((prediction - days) * 24)
+        if(hours%24==0):
+            days+=1
+            hours=0
         return jsonify({
             "duration": {"days": days, "hours": hours},
             "cost": data.get("team_cost", 0) * prediction * 8,

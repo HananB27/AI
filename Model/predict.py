@@ -57,5 +57,8 @@ test_task = {
 prediction = model.predict(test_task)
 days = int(prediction)
 hours = round((prediction - days) * 24)
+if(hours %24==0):
+    days+=1
+    hours=0
 print(f"Predicted Duration for example task: {days} days and {hours} hours")
 
