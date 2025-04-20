@@ -8,7 +8,7 @@ model = TaskDurationModel()
 model.load("models/model_weights.npz")
 
 # === Load test dataset ===
-test_df = pd.read_csv("realistic_tasks_large.csv").sample(1000)
+test_df = pd.read_csv("dataset.csv").sample(1000)
 
 # === Predict and Evaluate ===
 predictions = []
